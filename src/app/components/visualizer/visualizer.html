@@ -1,0 +1,71 @@
+<div class="h-full flex flex-col bg-[var(--surface-main)] relative">
+  <!-- Main Canvas Area -->
+  <div class="flex-1 relative overflow-hidden">
+    @if (opType() === 'array') {
+      <app-array-visualizer></app-array-visualizer>
+    } @else if (opType() === 'heap') {
+      <app-heap-visualizer></app-heap-visualizer>
+    } @else if (opType() === 'circular-queue') {
+      <app-circular-queue-visualizer></app-circular-queue-visualizer>
+    } @else if (opType() === 'graph') {
+      <app-graph-visualizer></app-graph-visualizer>
+    } @else {
+      <div class="w-full h-full flex items-center justify-center text-[var(--text-secondary)]">
+        @if (op()) {
+          Visualizer for {{ op()?.name }} goes here
+        } @else {
+          Select an algorithm to begin visualization
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Action / State Message Bar -->
+  <div class="px-6 py-4 border-t border-[var(--border-subtle)] bg-[var(--surface-panel)] text-[var(--text-primary)] font-mono text-[14px]">
+    @if (message()) {
+      <span class="flex items-center gap-3">
+        <span class="w-2.5 h-2.5 rounded-full bg-[var(--accent-base)] shadow-[0_0_8px_var(--accent-base)]" [class.animate-pulse]="engine.isPlaying()"></span>
+        {{ message() }}
+      </span>
+    } @else {
+      <span class="text-[var(--text-secondary)] italic">Ready to execute...</span>
+    }
+  </div>
+
+  <!-- Dynamic Inputs Panel -->
+  @if (op()) {
+    <div class="px-6 py-4 border-t border-[var(--border-subtle)] bg-[#121318] flex flex-wrap items-center gap-6 shadow-[0_-8px_24px_rgba(0,0,0,0.4)] z-10 w-full shrink-0">
+      
+      @if (engine.currentInput() !== null) {
+        <div class="flex items-center gap-3 relative flex-col">
+           <div class="flex items-center gap-3 w-full relative">
+             <span class="text-[11px] text-[var(--text-secondary)] uppercase font-bold tracking-wider">Input Array</span>
+             <div class="relative flex flex-col items-start group">
+               <input type="text" 
+                      class="peer px-3 py-1.5 bg-[#1e2029] border border-[var(--border-subtle)] rounded-md text-[13px] text-white w-[200px] md:w-[280px] focus:outline-none focus:border-[var(--accent-base)] focus:ring-1 focus:ring-[var(--accent-base)] font-mono transition-all"
+                      [value]="inputArrayString()"
+                      (blur)="onInputArrayBlur($event)"
+                      (keyup.enter)="onInputArrayBlur($event)"
+                      [disabled]="engine.isPlaying()">
+               <div class="absolute bottom-full mb-2 hidden peer-hover:block px-2 py-1 bg-black text-white text-xs rounded whitespace-nowrap shadow-md border border-gray-700 pointer-events-none z-[100]">
+                 Comma separated numbers
+               </div>
+             </div>
+           </div>
+        </div>
+      }
+      
+      @for (argName of engine.argNames(); track $index; let idx = $index) {
+        <div class="flex items-center gap-3">
+           <span class="text-[11px] text-[var(--text-secondary)] uppercase font-bold tracking-wider">{{ argName }}</span>
+           <input type="text" 
+                  class="px-3 py-1.5 bg-[#1e2029] border border-[var(--border-subtle)] rounded-md text-[13px] text-white w-[90px] focus:outline-none focus:border-[var(--accent-base)] focus:ring-1 focus:ring-[var(--accent-base)] font-mono transition-all text-center"
+                  [value]="engine.currentArgs()[idx]"
+                  (blur)="onArgBlur(idx, $event)"
+                  (keyup.enter)="onArgBlur(idx, $event)"
+                  [disabled]="engine.isPlaying()">
+        </div>
+      }
+    </div>
+  }
+</div>

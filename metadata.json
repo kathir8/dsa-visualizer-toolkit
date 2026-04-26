@@ -1,0 +1,6 @@
+{
+  "name": "DSA Visualizer Toolkit",
+  "description": "Interactive Data Structures and Algorithms visualizer allowing line-by-line debugging.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

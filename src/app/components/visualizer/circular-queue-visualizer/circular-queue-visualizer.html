@@ -1,0 +1,31 @@
+<div class="w-full h-full flex flex-col items-center justify-center p-8 bg-[var(--surface-main)] relative overflow-hidden">
+  <div class="relative w-[300px] h-[300px] md:w-[400px] md:h-[400px]">
+    @for (item of data(); track $index; let idx = $index) {
+      @let angle = (idx * 360 / data().length) - 90;
+      @let rad = angle * (3.14159 / 180);
+      @let x = 50 + 40 * _cos(rad);
+      @let y = 50 + 40 * _sin(rad);
+      
+      <div [style]="'position: absolute; left: calc(' + x + '% - 24px); top: calc(' + y + '% - 24px);'"
+           class="flex flex-col items-center justify-center pointer-events-none transition-all duration-300">
+        
+        <div [class]="getClasses(idx)" class="transition-all duration-300 transform" [class.scale-110]="isActive(idx)">
+          {{ item === 'null' ? '' : item }}
+        </div>
+        
+        <div class="text-[10px] text-[var(--text-secondary)] font-mono mt-2 flex flex-col items-center gap-0.5">
+          <span>{{ idx }}</span>
+          @if (pointersMap()['front'] === idx) {
+            <span class="bg-[var(--accent-base)] text-black px-1 rounded text-[8px] font-bold">FRONT</span>
+          }
+          @if (pointersMap()['rear'] === idx) {
+            <span class="bg-[#f0abfc] text-[#4a044e] px-1 rounded text-[8px] font-bold">REAR</span>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Optional: Center decoration -->
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border border-dashed border-[var(--border-subtle)] opacity-50"></div>
+  </div>
+</div>

@@ -1,0 +1,41 @@
+<div class="flex flex-col gap-3">
+  <svg viewBox="0 0 280 150" class="w-full h-auto overflow-hidden">
+    <defs>
+      <clipPath id="chart-clip"><rect x="25" y="10" width="250" height="115"/></clipPath>
+    </defs>
+    
+    <!-- Axes -->
+    <g stroke="#2e313d" stroke-width="2">
+      <line x1="25" y1="125" x2="230" y2="125" />
+      <line x1="25" y1="125" x2="25" y2="10" />
+    </g>
+    
+    <!-- Axis Labels -->
+    <text x="127" y="145" fill="#94a3b8" font-size="10" font-family="sans-serif" text-anchor="middle">Elements (n)</text>
+    <text x="10" y="67" fill="#94a3b8" font-size="10" font-family="sans-serif" transform="rotate(-90 10,67)" text-anchor="middle">{{ yAxisLabel() }}</text>
+
+    <!-- Curves -->
+    @for (curve of curves; track curve.id) {
+      <g [attr.opacity]="isActive(curve.id) ? 1 : 0.15" class="transition-opacity duration-300">
+        <path [attr.d]="curve.path" fill="none" [attr.stroke]="curve.color" [attr.stroke-width]="isActive(curve.id) ? 3 : 2" />
+        <text 
+          [attr.x]="curve.labelX" 
+          [attr.y]="curve.labelY" 
+          [attr.fill]="curve.color" 
+          [attr.text-anchor]="curve.align || 'start'"
+          font-size="12" 
+          font-weight="bold" 
+          font-family="monospace"
+          stroke="#1e2029"
+          stroke-width="4"
+          paint-order="stroke fill"
+        >{{ curve.id }}</text>
+      </g>
+    }
+  </svg>
+  
+  <div class="text-xs text-center border-t border-[var(--border-subtle)] pt-2 uppercase tracking-wide">
+    <span class="text-[var(--text-secondary)] mr-2 font-bold">{{ chartTitle() }}</span>
+    <span class="font-bold px-2 py-0.5 rounded text-[11px]" [style.background-color]="activeColor() + '20'" [style.color]="activeColor() || '#ffffff'">{{ activeComplexity() || 'N/A' }}</span>
+  </div>
+</div>

@@ -1,0 +1,126 @@
+<div class="w-full h-full flex flex-col items-center justify-center p-8 overflow-y-auto">
+  <!-- Recursion / Call Stack Mode -->
+  @if (isRecursion()) {
+    <div class="flex flex-col-reverse items-center gap-2 max-w-full w-64">
+       <div class="text-sm font-bold text-[var(--text-secondary)] mb-4">Call Stack</div>
+       @for (val of data(); track $index) {
+         <div 
+           class="w-full p-4 border-2 rounded-lg text-center font-mono shadow-md transition-all duration-300 transform"
+           [ngClass]="{
+             'bg-[var(--accent-base)] text-white border-[var(--accent-base)] scale-105 translate-y-2': $last,
+             'bg-[var(--surface-hover)] text-[var(--text-primary)] border-[var(--border-subtle)]': !$last
+           }"
+         >
+           factorial({{ val }})
+         </div>
+       }
+    </div>
+  }
+  <!-- Special Handling for Graph "Array to Graph" / "Array to Binary Tree" - which yields an adjacency list/array -->
+  @else if (isTreeOrGraphRepresentation()) {
+    <div class="flex flex-col items-center gap-4 max-w-full">
+       <div class="text-sm font-bold text-[var(--text-secondary)]">Adjacency List / State</div>
+       @for (row of data(); track $index) {
+         <div class="flex items-center gap-4">
+           <div class="font-mono text-[var(--text-secondary)] w-8 text-right">{{ $index }}:</div>
+           <div class="flex gap-2">
+             @if (!row || row.length === 0) {
+               <div class="text-xs text-[var(--text-muted)] italic">empty</div>
+             }
+             @for (col of (isArray(row) ? row : [row]); track $index) {
+               <div class="w-8 h-8 flex items-center justify-center bg-[var(--surface-hover)] border border-[var(--border-subtle)] rounded text-sm text-[var(--text-primary)]">
+                 {{ col }}
+               </div>
+             }
+           </div>
+         </div>
+       }
+    </div>
+  }
+  <!-- Standard / Array / Sliding Window / Sorting Mode -->
+  @else {
+    <div class="w-full h-full flex flex-col items-center justify-center p-8 overflow-y-auto">
+      <div class="flex items-end justify-start gap-2 max-w-full p-4 relative min-[768px]:[--item-width:64px] [--item-width:48px]" style="width: fit-content; margin: 0 auto;">
+        <!-- Sliding Window Highlight Background -->
+        @if (isSlidingWindow() && getWindowBounds()) {
+           <div 
+             class="absolute bg-[var(--accent-base)] opacity-10 rounded-xl transition-all duration-300 ease-in-out pointer-events-none"
+             [style.left]="'calc(16px + ' + getWindowBounds()?.min + ' * (var(--item-width) + 8px) - 4px)'"
+             [style.width]="'calc(' + ((getWindowBounds()?.max || 0) - (getWindowBounds()?.min || 0) + 1) + ' * (var(--item-width) + 8px))'"
+             style="top: 12px; bottom: 12px;"
+           ></div>
+        }
+
+        @for (val of data(); track $index; let last = $last) {
+          <div class="flex items-center gap-2 relative group" [attr.data-index]="$index">
+            <div class="flex flex-col items-center gap-2 transition-transform duration-300"
+              [ngStyle]="isBubbleSort() && isSwapped($index) ? {'transform': 'translateY(-20px)'} : {}">
+              <!-- Pointers above -->
+              <div class="h-8 flex flex-wrap items-end justify-center gap-1 w-full max-w-[100px] overflow-visible">
+                 @for (ptr of getPointersForIndex($index); track ptr) {
+                   <div class="text-[9px] font-bold px-1 rounded bg-[var(--text-secondary)] text-[var(--bg-color)]">
+                     {{ ptr }}
+                   </div>
+                 }
+              </div>
+  
+              <!-- Block -->
+              <div 
+                class="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center rounded-lg text-lg font-bold shadow transition-all duration-500 border-2 text-[var(--text-primary)] relative z-10"
+                [ngClass]="{
+                  'bg-[var(--accent-success)] border-[var(--accent-success)] text-white scale-110': isSwapped($index),
+                  'border-[var(--accent-base)] shadow-[0_0_15px_rgba(var(--accent-base-rgb),0.5)] scale-105': isSlidingWindow() && isActive($index),
+                  'bg-[var(--accent-base)]/20 border-[var(--accent-base)] text-[var(--accent-base)] scale-105': !isSlidingWindow() && isActive($index) && !isSwapped($index),
+                  'bg-[var(--surface-hover)] border-[var(--border-subtle)]': !isActive($index) && !isSwapped($index),
+                  'rounded-full': isLinkedList()
+                }"
+              >
+                {{ val }}
+              </div>
+  
+              <!-- Index below -->
+              <div class="text-xs text-[var(--text-secondary)] font-mono">{{ $index }}</div>
+            </div>
+            
+            @if (isLinkedList() && !last) {
+              <div class="flex flex-col items-center mx-1">
+                <div class="h-8 w-full gap-1 mb-2"></div>
+                <div class="w-8 md:w-12 h-12 md:h-16 flex items-center justify-center relative">
+                  <div class="absolute w-full h-0 border-t-[2px] border-[#6B7280]"></div>
+                  <mat-icon class="absolute -right-3 text-[#6B7280]">chevron_right</mat-icon>
+                  @if (isDoublyLinkedList()) {
+                    <mat-icon class="absolute -left-3 text-[#6B7280]">chevron_left</mat-icon>
+                  }
+                </div>
+                <div class="text-xs opacity-0 mt-2">0</div>
+              </div>
+            }
+          </div>
+        }
+        
+        @if (isLinkedList() && data().length > 0) {
+           <div class="flex items-center h-full">
+              <div class="flex flex-col items-center mx-1">
+                <div class="h-8 w-full gap-1 mb-2"></div>
+                <div class="w-8 md:w-12 h-12 md:h-16 flex items-center justify-center relative">
+                  <div class="absolute w-full h-0 border-t-[2px] border-[#6B7280]"></div>
+                  <mat-icon class="absolute -right-3 text-[#6B7280]">chevron_right</mat-icon>
+                  @if (isDoublyLinkedList()) {
+                    <mat-icon class="absolute -left-3 text-[#6B7280]">chevron_left</mat-icon>
+                  }
+                </div>
+                <div class="text-xs opacity-0 mt-2">0</div>
+              </div>
+              <div class="flex flex-col items-center">
+                <div class="h-8 w-full gap-1 mb-2"></div>
+                <div class="h-12 md:h-16 flex items-center justify-center">
+                  <div class="text-[#6B7280] font-mono text-lg font-bold">null</div>
+                </div>
+                <div class="text-xs opacity-0 mt-2">0</div>
+              </div>
+           </div>
+        }
+      </div>
+    </div>
+  }
+</div>

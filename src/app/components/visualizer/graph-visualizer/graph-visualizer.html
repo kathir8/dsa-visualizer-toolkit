@@ -1,0 +1,46 @@
+<div class="h-full w-full flex items-center justify-center p-8 overflow-hidden relative">
+  <svg class="w-full h-full" [attr.viewBox]="viewBox">
+    <defs>
+      <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="25" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#6B7280" />
+      </marker>
+    </defs>
+    
+    <!-- Edges -->
+    @for (m of margins; track $index) {
+       @let sourceIdx = $index;
+       @for (edge of getEdges(sourceIdx, state()?.data || []); track edge) {
+         <!-- If node j is active/visited, we could color the edge differently, but gray is fine -->
+         <line 
+            [attr.x1]="getNodePos(sourceIdx).x" 
+            [attr.y1]="getNodePos(sourceIdx).y" 
+            [attr.x2]="getNodePos(edge).x" 
+            [attr.y2]="getNodePos(edge).y"
+            stroke="#6B7280" 
+            stroke-width="2" 
+            marker-end="url(#arrowhead)"
+          />
+       }
+    }
+
+    <!-- Nodes -->
+    @for (node of margins; track $index) {
+      <g class="transition-all duration-300">
+      <circle 
+        [attr.cx]="getNodePos($index).x" 
+        [attr.cy]="getNodePos($index).y" 
+        r="20"
+        [class]="getNodeClass($index)"
+        stroke-width="2" />
+      <text 
+        [attr.x]="getNodePos($index).x" 
+        [attr.y]="getNodePos($index).y" 
+        text-anchor="middle" 
+        dominant-baseline="central" 
+        fill="currentColor"
+        class="font-mono text-sm dark:text-white text-gray-900 font-semibold"
+        >{{ getNodeLabel($index) }}</text>
+    </g>
+    }
+  </svg>
+</div>

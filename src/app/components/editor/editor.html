@@ -1,0 +1,129 @@
+<div class="flex flex-col h-full bg-[var(--surface-panel)] border-r border-[var(--border-subtle)]">
+  
+  <!-- Top Bar: Title & Complexity -->
+  <div class="h-14 px-4 flex items-center justify-between border-b border-[var(--border-subtle)] relative z-50 shrink-0">
+    <h2 class="font-semibold text-[var(--text-primary)]">
+      {{ op()?.name || 'Select an Algorithm' }}
+    </h2>
+    @if (op()) {
+      <div class="flex gap-6 text-xs font-mono text-[var(--text-secondary)]">
+        
+        <div class="relative group inline-flex items-center">
+          <span class="flex items-center gap-1 group-hover:text-white transition-colors">
+            <mat-icon class="text-[16px]">schedule</mat-icon> {{ op()?.complexities?.time }}
+          </span>
+          <div class="absolute top-10 right-0 p-4 bg-[#1e2029] border border-[var(--border-subtle)] rounded-lg shadow-2xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 pointer-events-none transition-all duration-300 z-[100] w-72 origin-top-right">
+            <app-complexity-chart [activeComplexity]="op()?.complexities?.time || ''" chartTitle="Time Complexity" yAxisLabel="Operations / Time"></app-complexity-chart>
+          </div>
+        </div>
+
+        <div class="relative group inline-flex items-center">
+          <span class="flex items-center gap-1 group-hover:text-white transition-colors">
+            <mat-icon class="text-[16px]">memory</mat-icon> {{ op()?.complexities?.space }}
+          </span>
+          <div class="absolute top-10 right-0 p-4 bg-[#1e2029] border border-[var(--border-subtle)] rounded-lg shadow-2xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 pointer-events-none transition-all duration-300 z-[100] w-72 origin-top-right">
+            <app-complexity-chart [activeComplexity]="op()?.complexities?.space || ''" chartTitle="Space Complexity" yAxisLabel="Memory Allocated"></app-complexity-chart>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Toolbar: Controls -->
+  <div class="px-4 py-2 flex items-center gap-2 border-b border-[var(--border-subtle)] bg-[var(--surface-main)] shrink-0">
+    <button class="px-3 py-1.5 rounded bg-[var(--surface-hover)] border border-[var(--border-subtle)] hover:border-gray-500 hover:text-white transition-colors text-sm flex items-center gap-1 font-medium cursor-pointer" (click)="engine.play()" [disabled]="engine.isPlaying() || !op()" [class.opacity-50]="engine.isPlaying()">
+      <mat-icon>play_arrow</mat-icon> Play
+    </button>
+    <button class="px-3 py-1.5 rounded bg-[var(--surface-hover)] border border-[var(--border-subtle)] hover:border-gray-500 hover:text-white transition-colors text-sm flex items-center gap-1 font-medium cursor-pointer" (click)="engine.pause()" [disabled]="!engine.isPlaying()" [class.opacity-50]="!engine.isPlaying()">
+      <mat-icon>pause</mat-icon> Pause
+    </button>
+    <button class="px-3 py-1.5 rounded bg-[var(--surface-hover)] border border-[var(--border-subtle)] hover:border-gray-500 hover:text-white transition-colors text-sm flex items-center gap-1 font-medium cursor-pointer" (click)="engine.stepNext()" [disabled]="engine.isPlaying() || !op()">
+      <mat-icon>skip_next</mat-icon> Step
+    </button>
+    <div class="w-px h-6 bg-[var(--border-subtle)] mx-2"></div>
+    <button class="px-3 py-1.5 rounded bg-[var(--surface-hover)] border border-[var(--border-subtle)] hover:border-gray-500 hover:text-white transition-colors text-sm flex items-center gap-1 font-medium cursor-pointer" (click)="engine.restart()" [disabled]="!op()">
+      <mat-icon>restart_alt</mat-icon> Restart
+    </button>
+    <button class="px-3 py-1.5 rounded bg-[var(--surface-hover)] border border-[var(--border-subtle)] hover:border-gray-500 hover:text-white transition-colors text-sm flex items-center gap-1 font-medium cursor-pointer" (click)="engine.resetToDefaults()" [disabled]="!op()">
+      <mat-icon>restore</mat-icon> Reset Default
+    </button>
+
+    <div class="ml-auto flex items-center gap-2 text-xs text-[var(--text-secondary)]">
+      Speed
+      <input type="range" class="w-24 accent-[var(--accent-base)] cursor-pointer" min="100" max="2000" step="100" [value]="2100 - engine.speedTimerMs()" (change)="onSpeedChange($event)" (input)="onSpeedInput($event)" />
+    </div>
+  </div>
+
+  <div class="flex-1 overflow-hidden min-h-0">
+    <as-split direction="vertical">
+      <!-- Code Area -->
+      <as-split-area [size]="75" [minSize]="0">
+        <div class="h-full relative overflow-hidden bg-[#0d0d0d] font-mono text-[14px] leading-6 group object-cover">
+          @if (op()) {
+            <!-- Copy Button -->
+            <div class="absolute top-2 right-2 z-[60] opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-end">
+               <button class="peer p-1.5 rounded bg-black text-white hover:bg-gray-800 transition-colors flex items-center justify-center shadow-lg cursor-pointer"
+                       (click)="copyCode()">
+                 @if (copied()) {
+                   <mat-icon class="text-[18px] text-green-400! h-[18px] w-[18px]">check</mat-icon>
+                 } @else {
+                   <mat-icon class="text-[18px] h-[18px] w-[18px]">content_copy</mat-icon>
+                 }
+               </button>
+               <div class="absolute top-full mt-2 hidden peer-hover:block px-2 py-1 bg-black text-white text-xs rounded whitespace-nowrap shadow-md border border-gray-700 pointer-events-none">
+                 Copy code
+               </div>
+            </div>
+
+            <!-- Highlight Overlay -->
+            @if (currentLine() > 0) {
+              <div 
+                class="absolute left-0 right-0 bg-[var(--accent-base)]/20 border-l-4 border-[var(--accent-base)] pointer-events-none transition-all duration-200 z-10"
+                [style.top.px]="(currentLine() - 1) * 24 + 16 - scrollTop()"
+                [style.height.px]="24"
+              ></div>
+            }
+            
+            <textarea 
+               class="absolute inset-0 w-full h-full p-4 bg-transparent text-transparent caret-transparent resize-none outline-none z-20 m-0 border-none font-mono text-[14px] leading-6 whitespace-pre custom-scrollbar" 
+               spellcheck="false" 
+               [value]="editableCode()" 
+               (scroll)="onScroll($event)"
+               readonly
+            ></textarea>
+            
+            <pre class="m-0 p-4 min-w-full absolute inset-0 pointer-events-none z-0" aria-hidden="true" [style.transform]="'translate(-' + scrollLeft() + 'px, -' + scrollTop() + 'px)'"><code [innerHTML]="highlightedCode()"></code></pre>
+          } @else {
+            <div class="h-full flex items-center justify-center text-[var(--text-secondary)]">
+              Please select an algorithm from the sidebar.
+            </div>
+          }
+        </div>
+      </as-split-area>
+
+      <!-- Local Variables Panel -->
+      <as-split-area [size]="25" [minSize]="0">
+        <div class="h-full bg-[var(--surface-main)] flex flex-col">
+          <div class="px-3 py-2 border-b border-[var(--border-subtle)] text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] shrink-0">
+            Local Variables
+          </div>
+          <div class="flex-1 overflow-auto p-3 custom-scrollbar">
+            @if (vars() && getObjectKeys(vars()).length > 0) {
+              <div class="grid grid-cols-2 gap-2 text-sm font-mono">
+                @for (key of getObjectKeys(vars()); track key) {
+                  <div class="flex items-start gap-2">
+                    <span class="text-[var(--accent-warning)]">{{ key }}:</span>
+                    <span class="text-white break-all">{{ stringify(vars()[key]) }}</span>
+                  </div>
+                }
+              </div>
+            } @else {
+              <span class="text-xs text-[var(--text-secondary)] italic">No active variables</span>
+            }
+          </div>
+        </div>
+      </as-split-area>
+    </as-split>
+  </div>
+
+</div>

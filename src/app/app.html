@@ -1,0 +1,49 @@
+<div class="flex h-screen w-full overflow-hidden bg-[var(--bg-color)]">
+  <as-split direction="horizontal">
+    
+    <!-- Sidebar Navigation -->
+    <as-split-area [size]="14" [minSize]="0" [maxSize]="14">
+      <app-sidebar class="h-full block"></app-sidebar>
+    </as-split-area>
+    
+    <as-split-area [size]="86" class="flex flex-col h-full bg-[var(--bg-color)]">
+      <main class="flex-1 flex flex-col overflow-hidden h-full">
+        <!-- Top Tabs corresponding to operations of selected topic -->
+        @if (activeTopic()) {
+          <div class="h-12 bg-[var(--surface-main)] border-b border-[var(--border-subtle)] flex items-center px-4 gap-2 overflow-x-auto shrink-0 custom-scrollbar">
+            @for (op of activeTopic()?.operations; track op.id) {
+              <button 
+                (click)="selectOperation(op)"
+                class="px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors cursor-pointer"
+                [ngClass]="{
+                  'bg-[var(--accent-base)] text-white shadow-[0_0_10px_var(--accent-base)]': activeOp()?.id === op.id,
+                  'bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-white': activeOp()?.id !== op.id
+                }"
+              >
+                {{ op.name }}
+              </button>
+            }
+          </div>
+        }
+
+        <!-- Content panels -->
+        <div class="flex-1 overflow-hidden h-full">
+          <as-split direction="horizontal">
+            <!-- Left panel: Code Editor & Execution Engine -->
+            <as-split-area [size]="50" [minSize]="0">
+              <app-editor class="block h-full"></app-editor>
+            </as-split-area>
+            
+            <!-- Right panel: Visualization Rendering -->
+            <as-split-area [size]="50" [minSize]="0">
+              <div class="h-full bg-[#121318] shadow-[-4px_0_20px_rgba(0,0,0,0.5)] z-20 overflow-hidden">
+                <app-visualizer class="block h-full"></app-visualizer>
+              </div>
+            </as-split-area>
+          </as-split>
+        </div>
+      </main>
+    </as-split-area>
+
+  </as-split>
+</div>

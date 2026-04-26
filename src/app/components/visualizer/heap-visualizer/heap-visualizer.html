@@ -1,0 +1,51 @@
+<div class="w-full h-full flex flex-col items-center justify-start pt-16 bg-[var(--surface-main)] relative overflow-auto">
+  <div class="relative min-w-[600px] min-h-[400px]">
+    <!-- Edges -->
+    <svg class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 0">
+      @for (edge of edges(); track edge.id) {
+        <line 
+          [attr.x1]="edge.x1" 
+          [attr.y1]="edge.y1" 
+          [attr.x2]="edge.x2" 
+          [attr.y2]="edge.y2" 
+          [attr.stroke]="isEdgeActive(edge) ? '#3b82f6' : '#334155'"
+          [attr.stroke-width]="isEdgeActive(edge) ? '3' : '2'"
+          class="transition-all duration-300"
+        />
+      }
+    </svg>
+
+    <!-- Nodes -->
+    @for (node of nodes(); track node.idx) {
+      <div [style.left]="'calc(' + node.x + 'px - 24px)'" [style.top]="'calc(' + node.y + 'px - 24px)'"
+           style="position: absolute;"
+           class="flex flex-col items-center justify-center pointer-events-none transition-all duration-300 z-10">
+        
+        <div [class]="getClasses(node.idx)" class="transition-all duration-300 transform" [class.scale-110]="isActive(node.idx)">
+           {{ node.value !== null && node.value !== undefined ? node.value : '' }}
+        </div>
+        
+        <div class="text-[10px] text-[var(--text-secondary)] font-mono mt-2 absolute top-12 left-1/2 -translate-x-1/2 whitespace-nowrap bg-[var(--surface-main)]/80 px-1 rounded">
+          <span class="opacity-50">[{{ node.idx }}]</span>
+          @if (pointersMap()['root'] === node.idx) {
+            <span class="bg-[#f0abfc] text-[#4a044e] px-1 rounded text-[8px] font-bold ml-1">ROOT</span>
+          }
+          @if (pointersMap()['temp'] === node.idx || pointersMap()['largest'] === node.idx || pointersMap()['smallest'] === node.idx) {
+             <span class="bg-yellow-500/20 text-yellow-500 px-1 rounded text-[8px] font-bold ml-1">SEL</span>
+          }
+          @if (pointersMap()['curr'] === node.idx) {
+             <span class="bg-teal-500/20 text-teal-400 px-1 rounded text-[8px] font-bold ml-1">CURR</span>
+          }
+          @if (pointersMap()['parent'] === node.idx) {
+             <span class="bg-[#19273c] text-blue-400 px-1 rounded text-[8px] font-bold ml-1">PAR</span>
+          }
+        </div>
+      </div>
+    }
+  </div>
+  @if (data().length === 0) {
+    <div class="absolute inset-0 flex items-center justify-center text-[var(--text-secondary)] text-sm">
+      Heap is empty
+    </div>
+  }
+</div>

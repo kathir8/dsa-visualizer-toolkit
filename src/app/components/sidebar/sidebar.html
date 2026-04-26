@@ -1,0 +1,24 @@
+<aside class="w-full h-full flex flex-col bg-[var(--surface-main)] border-r border-[var(--border-subtle)]">
+  <div class="px-6 py-5 flex items-center gap-3 border-b border-[var(--border-subtle)]">
+    <mat-icon class="text-[var(--accent-base)] text-2xl font-bold">account_tree</mat-icon>
+    <h1 class="text-lg font-bold tracking-wide text-white">DSA Visualizer</h1>
+  </div>
+  
+  <div class="flex-1 overflow-y-auto custom-scrollbar p-3">
+    <div class="flex flex-col gap-1">
+      @for (topic of topics; track topic.id) {
+        <button
+          (click)="selectTopic(topic)"
+          class="flex items-center gap-3 px-3 py-2 w-full text-left rounded-lg text-sm font-medium transition-colors duration-200 cursor-pointer"
+          [ngClass]="{
+            'bg-[var(--surface-hover)] text-white': activeTopic()?.id === topic.id,
+            'text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-white': activeTopic()?.id !== topic.id
+          }"
+        >
+          <mat-icon class="text-[18px]">folder</mat-icon>
+          {{ topic.name }}
+        </button>
+      }
+    </div>
+  </div>
+</aside>
