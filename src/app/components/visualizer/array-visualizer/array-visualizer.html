@@ -78,8 +78,10 @@
                 {{ val }}
               </div>
   
-              <!-- Index below -->
-              <div class="text-xs text-[var(--text-secondary)] font-mono">{{ $index }}</div>
+              @if(!isLinkedList()) {
+                <!-- Index below -->
+                <div class="text-xs text-[var(--text-secondary)] font-mono">{{ $index }}</div>
+              }
             </div>
             
             @if (isLinkedList() && !last) {
@@ -92,7 +94,6 @@
                     <mat-icon class="absolute -left-3 text-[#6B7280]">chevron_left</mat-icon>
                   }
                 </div>
-                <div class="text-xs opacity-0 mt-2">0</div>
               </div>
             }
           </div>
@@ -109,14 +110,12 @@
                     <mat-icon class="absolute -left-3 text-[#6B7280]">chevron_left</mat-icon>
                   }
                 </div>
-                <div class="text-xs opacity-0 mt-2">0</div>
               </div>
               <div class="flex flex-col items-center ml-4 md:ml-6">
                 <div class="h-8 w-full gap-1 mb-2"></div>
                 <div class="h-12 md:h-16 flex items-center justify-center">
                   <div class="text-[#6B7280] font-mono text-lg font-bold">null</div>
                 </div>
-                <div class="text-xs opacity-0 mt-2">0</div>
               </div>
            </div>
         }
