@@ -1,6 +1,6 @@
 ## Live Demo
 The concpet learn is deployed on Vercel and available here:  
-👉 **https://kathir-learn.vercel.app/**
+👉 **https://kathir-learn-dsa.vercel.app/**
 
 
 ## Run Locally
